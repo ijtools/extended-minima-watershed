@@ -46,8 +46,8 @@ public class ExtendedMinimaWatershedPlugin implements PlugIn
         gd.addNumericField("Tolerance:", 10, nDigits);
         String[] connLabels = is2D ? conn2dLabels : conn3dLabels;
         gd.addChoice("Connectivity:", connLabels, connLabels[0]);
-        gd.addCheckbox("Verbose", true);
         boolean calculateDams = true;
+        gd.addCheckbox("Verbose", true);
 
         // wait for user input
         gd.showDialog();
@@ -76,28 +76,30 @@ public class ExtendedMinimaWatershedPlugin implements PlugIn
 
         final long step0 = System.currentTimeMillis();
 
-        if (null == minima)
+        if (minima == null)
         {
             showBreakupMessage("The segmentation was interrupted!");
             return;
         }
 
         final long step1 = System.currentTimeMillis();
-        if (verbose) IJ.log("Regional minima took " + (step1 - step0) + " ms.");
+        if (verbose) IJ.log("Extended minima took " + (step1 - step0) + " ms.");
+        
 
         // Impose extended minima over the original image
-        if (verbose) IJ.log("Imposing regional minima on original image (connectivity = " + connectivity + ")...");
-        ImageStack imposedMinimaStack;
+        if (verbose) IJ.log("Imposing minima on original image (connectivity = " + connectivity + ")...");
+        ImageStack imposedMinima;
         if (is2D)
         {
-            imposedMinimaStack = createStack(MinimaAndMaxima.imposeMinima(image.getProcessor(1), minima.getProcessor(1), connectivity));
+            imposedMinima = createStack(
+                    MinimaAndMaxima.imposeMinima(image.getProcessor(1), minima.getProcessor(1), connectivity));
         }
         else
         {
-            imposedMinimaStack = MinimaAndMaxima3D.imposeMinima(image, minima, connectivity);
+            imposedMinima = MinimaAndMaxima3D.imposeMinima(image, minima, connectivity);
         }
 
-        if (null == imposedMinimaStack)
+        if (imposedMinima == null)
         {
             showBreakupMessage("The segmentation was interrupted!");
             return;
@@ -115,10 +117,9 @@ public class ExtendedMinimaWatershedPlugin implements PlugIn
         }
         else
         {
-            // 3D processing
             labeledMinima = BinaryImages.componentsLabeling(minima, connectivity, 32);
         }
-        if (null == labeledMinima)
+        if (labeledMinima == null)
         {
             showBreakupMessage("The segmentation was interrupted!");
             return;
@@ -134,11 +135,12 @@ public class ExtendedMinimaWatershedPlugin implements PlugIn
         {
             if (is2D)
             {
-                result = createStack(Watershed.computeWatershed(imposedMinimaStack.getProcessor(1), labeledMinima.getProcessor(1), connectivity, calculateDams, verbose));
+                result = createStack(Watershed.computeWatershed(
+                        imposedMinima.getProcessor(1), labeledMinima.getProcessor(1), connectivity, calculateDams, verbose));
             }
             else
             {
-                result = Watershed.computeWatershed(imposedMinimaStack, labeledMinima, connectivity, calculateDams, verbose);
+                result = Watershed.computeWatershed(imposedMinima, labeledMinima, connectivity, calculateDams, verbose);
             }
         }
         catch (Exception ex)
@@ -151,31 +153,33 @@ public class ExtendedMinimaWatershedPlugin implements PlugIn
             err.printStackTrace();
             IJ.log("Error: the plugin run out of memory. Please use a smaller input image.");
         }
-        if (null == result)
+        if (result == null)
         {
             showBreakupMessage("The segmentation was interrupted!");
             return;
         }
 
         String newName = createResultImageName(inputImagePlus);
-        ImagePlus resultImage = new ImagePlus(newName, result);
-        resultImage.setCalibration(inputImagePlus.getCalibration());
+        ImagePlus resultPlus = new ImagePlus(newName, result);
+        resultPlus.setCalibration(inputImagePlus.getCalibration());
 
-        final long end = System.currentTimeMillis();
-        if (verbose) IJ.log("Whole plugin took " + (end - t0) + " ms.");
+        final long tFinal = System.currentTimeMillis();
+        if (verbose) IJ.log("Whole plugin took " + (tFinal - t0) + " ms.");
 
         // Adjust min and max values to display
-        Images3D.optimizeDisplayRange(resultImage);
+        Images3D.optimizeDisplayRange(resultPlus);
 
         byte[][] colorMap = CommonLabelMaps.GLASBEY_BRIGHT.computeLut(calculateDams ? 255 : 256, false);
         ColorModel cm = calculateDams 
                 ? ColorMaps.createColorModel(colorMap, Color.BLACK) 
                 : ColorMaps.createColorModel(colorMap);
-        resultImage.getProcessor().setColorModel(cm);
-        resultImage.getImageStack().setColorModel(cm);
+        resultPlus.getProcessor().setColorModel(cm);
+        resultPlus.getImageStack().setColorModel(cm);
 
-        resultImage.show();
-        IJUtils.showElapsedTime("Watershed", end - t0, inputImagePlus);
+        resultPlus.show();
+        resultPlus.setSlice(inputImagePlus.getCurrentSlice());
+        
+        IJUtils.showElapsedTime("Watershed", tFinal - t0, inputImagePlus);
     }
 
     private ImageStack createStack(ImageProcessor slice)
