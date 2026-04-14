@@ -1,28 +1,19 @@
-# imagej-plugin-template
-Simple project template for creating ImageJ Plugins.
+# Extended Minima Watershed
 
-The aim is to provide a quick way to start a plugin for ImageJ, using the "legacy" plugin style. 
+This plugin for ImageJ/Fiji performs watershed on a grayscale image, after imposition of extended minima over the original image. 
+The processing is the same as the "Morphological Segmentation" Plugin from the [MorphoLibJ library](https://github.com/ijpb/MorphoLibJ).
+Actually, it relies on the MorphoLibJ library, that is required to run the plugin.
 
-The project is based on maven. It uses sci-java as parent configuration. The parent configuration 
-is somewhat old (1.126), but I encountered configuration troubles with more recent ones. 
+### Installation
+Simply copy the jar file into the "plugins" directory.
 
-The base configuration has few dependencies:
+### Usage
+* Select the plugin "Plugins -> MorphoLibJ Plus -> Extended Minima Watershed"
+* This opens a dialog with "tolerance", "connectivity" options (the same as the Morphological Segmentation plugin), as well as a "verbose" option, to disply progress within the log window
+* Clicking OK will compute directly the final image.
 
-* ImageJ
-* JUnit
-
-## Installation
-
-
-Follow the steps:
-
-1. Use the "Use this template" button to create a new project within GitHub. Give it the name your choice.
-2. Clone the new project into the directory of your choice. 
-3. Edit the `pom.xml` file with the information specific to the project. 
-In particular:
-    - the name of the project is used by the Eclipse IDE to index the project
-    - the `artifactId` tag is used to generate the name of the jar file
-5. You can start changing code and committing changes.
-
-A sample plugin file is provided in `src/main/java/net.ijt/DemoPlugin.java` file.
-The plugin configuration file is in `src/main/resources/plugins.config`.
+The different steps are the following ones:
+1. Compute extended minima from the original image
+1. compute imposition of minima on the original image
+1. compute connected components labeling on the minima image
+1. compute maker-based watershed on the imposed image, using labeled minima as markers.
