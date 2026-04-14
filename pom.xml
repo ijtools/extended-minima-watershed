@@ -20,7 +20,7 @@ http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <artifactId>Extended_Minima_Watershed</artifactId>
     <!-- Good practice are to use semantic versioning, --> 
     <!-- and to remove the "-SNAPSHOT" suffix before releasing new version' --> 
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0</version>
     <!-- The name of the project at it will appear in IDE or during compilation --> 
     <!-- (may be different from artifactID) --> 
     <name>Extended_Minima_Watershed</name>
