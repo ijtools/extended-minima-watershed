@@ -17,14 +17,15 @@ http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <!-- Artifact is the base name of the generated jar. --> 
     <!-- Feel free to update to what you want, but remember that --> 
     <!-- ImageJ plugins require an underscore '_' in the name... --> 
-    <artifactId>Plugin_Template</artifactId>
+    <artifactId>Extended_Minima_Watershed</artifactId>
     <!-- Good practice are to use semantic versioning, --> 
     <!-- and to remove the "-SNAPSHOT" suffix before releasing new version' --> 
     <version>0.0.1-SNAPSHOT</version>
     <!-- The name of the project at it will appear in IDE or during compilation --> 
     <!-- (may be different from artifactID) --> 
-    <name>Plugin_Template</name>
-    <description>Simple project template for ImageJ plugins</description>
+    <name>Extended_Minima_Watershed</name>
+    <description>ImageJ Plugin for computing watershed on a 2D/3D grayscale image 
+	after imposition of extended minima.</description>
     
     <!-- Global settings for the project --> 
     <properties>
